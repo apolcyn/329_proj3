@@ -18,7 +18,7 @@ int main(void) {
     DCOCTL = CALDCO_16MHZ;       // Set DCO step + modulation
 
     TACTL = TASSEL_2 + MC_1 + ID_3;
-    TACCR0 = 50000; // sample voltage every 50ms
+    TACCR0 = 6000; // sample voltage every 50ms
 
     P2DIR |= 0xFF;
     P2OUT = 0;
@@ -52,7 +52,7 @@ int main(void) {
     // Sets SMCLK divider to 16,
     // hence making SPI SCLK equal
     // to SMCLK/16 = 1MHz
-    UCB0BR0 |= 0x02;                    // (low divider byte)
+    UCB0BR0 |= 0x01;                    // (low divider byte)
     UCB0BR1 |= 0x00;                    // (high divider byte)
 
     UCB0CTL1 &= ~UCSWRST;               // **Initialize USCI state machine**
@@ -95,7 +95,7 @@ void Drive_DAC(unsigned int level){
 		       (DAC_Word & 0x00FF);  // Transmit lower byte to DAC
 
   while (!(IFG2 & UCB0TXIFG));       // USCI_A0 TX buffer ready?
-  __delay_cycles(5);               // Delay 100 16 MHz SMCLK periods
+  //__delay_cycles(5);               // Delay 100 16 MHz SMCLK periods
                                      // (6.25 us) to allow SIMO to complete
                                      // 6.52 us was the lowest amount of time
                                      // that we found we could wait for.
@@ -112,7 +112,7 @@ __interrupt void something(void) {
 	CACTL1 |= BIT3;  // turn on comparator
 
 	CACTL2 |= BIT7;   // turn on and off T-gate
-	__delay_cycles(16000);
+	__delay_cycles(10000);
 	CACTL2 &= ~BIT7;
 
 	__delay_cycles(1600);
@@ -126,9 +126,9 @@ __interrupt void something(void) {
 
 	while(i < 256  && (CACTL2 & BIT0)) {
 		P2OUT = i++;
-		__delay_cycles(300);
+		__delay_cycles(30);
 	}
-	P2OUT = 0;
+	P2OUT = 0; //37360, 2.335 ms, 40k cycles, 2.5ms
 
 	// 'i' is now (level where ramp > sample) + 1, unless ramp of '0' > sample
     i = max(1, i) - 1;
