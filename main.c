@@ -18,7 +18,7 @@ int main(void) {
     DCOCTL = CALDCO_16MHZ;       // Set DCO step + modulation
 
     TACTL = TASSEL_2 + MC_1 + ID_3;
-    TACCR0 = 6000; // sample voltage every 50ms
+    TACCR0 = 1000; // sample voltage every 50ms
 
     P2DIR |= 0xFF;
     P2OUT = 0;
@@ -112,21 +112,21 @@ __interrupt void something(void) {
 	CACTL1 |= BIT3;  // turn on comparator
 
 	CACTL2 |= BIT7;   // turn on and off T-gate
-	__delay_cycles(10000);
+	__delay_cycles(500);
 	CACTL2 &= ~BIT7;
 
-	__delay_cycles(1600);
+	__delay_cycles(100);
 
 	CACTL2 &= ~(BIT5 + BIT4 + BIT3);  // select ramp function on mux
 	CACTL2 |= BIT4 + BIT3;
 
 	int i = 0;
 	P2OUT = 0;
-	__delay_cycles(160);
+	__delay_cycles(100);
 
 	while(i < 256  && (CACTL2 & BIT0)) {
 		P2OUT = i++;
-		__delay_cycles(30);
+		__delay_cycles(10);
 	}
 	P2OUT = 0; //37360, 2.335 ms, 40k cycles, 2.5ms
 
